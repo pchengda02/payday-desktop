@@ -1,0 +1,10 @@
+node_modules/
+release*/
+.test-output/
+*.zip
+*.log
+.env
+.env.*
+payday.json
+*.pem
+*.key
