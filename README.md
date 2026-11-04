@@ -1,8 +1,8 @@
-# 下班倒计时 · Payday v1.3.1 平滑动画版
+# 下班倒计时 · Payday v1.3.2 稳定动画版
 
 一款小巧的 Windows 桌面悬浮窗：查看下班倒计时、今日收入与休息记录。免登录，数据保存在本机。
 
-[下载 Windows 版](https://github.com/pchengda02/payday-desktop/releases/latest) · [查看验证说明](SMOOTH-VALIDATION.md)
+[下载 Windows 版](https://github.com/pchengda02/payday-desktop/releases/latest) · [查看验证说明](STABLE-VALIDATION.md)
 
 ![展开面板](docs/images/home-dark.png)
 
@@ -12,7 +12,7 @@
 
 ## 打开新版
 
-先从系统托盘退出正在运行的旧版 Payday。解压 `Payday-Smooth-v1.3.1-Windows-x64.zip`，打开 `Payday.exe`，保留同目录全部文件。
+先从系统托盘退出正在运行的旧版 Payday。解压 `Payday-Stable-v1.3.2-Windows-x64.zip`，打开 `Payday.exe`，保留同目录全部文件。
 
 ## 拖动与收起
 
@@ -26,10 +26,12 @@
 
 ## 平滑开合
 
-- 收起约360毫秒，从较远的自由位置收回时约460毫秒；展开约400毫秒。
-- 外壳连续移动和改变尺寸，面板内容与顶部条文字淡入淡出，结束时逐渐减速。
-- 动画期间暂停悬停判断，避免透明过渡区域触发反复开合；连续操作会按最后一次请求停稳。
-- 动画结束即释放临时画布，恢复原来的小窗口范围。Windows启用减少动态效果时，尊重系统偏好。
+- 数字由12增至14px，标签由9增至11px，信息条仍为320×48 DIP。
+- 收起约320毫秒，从较远位置收回时约400毫秒；展开约360毫秒。
+- 原生窗口保持稳定，在画布内完成移动、外壳变形和内容交叉淡化，消除开合首尾的原生尺寸切换。
+- 页面入场动画不会随开合重新播放。内容全程保持连续，不出现两套内容同时消失的空档。
+- Windows窗口区域限制实际绘制和鼠标输入，透明区域不挡住桌面和其他应用。
+- 动画期间暂停悬停判断；连续操作按最后一次请求停稳。启用系统减少动态效果时尊重该偏好。
 
 ## 胶囊图形
 
@@ -39,7 +41,7 @@
 
 ## 本地开发
 
-需要 Windows 10/11 x64，以及 Node.js 22.12 或更新版本。
+需要 Windows 10/11 x64，以及 Node.js 22.12 或更新版本。运行原生窗口测试还需 Python 3（用于只读检查 Windows 窗口区域）。
 
 ```sh
 npm ci
@@ -48,8 +50,8 @@ npm start
 
 ## 开发与验证
 
-- `npm test`：21项核心计算、备份、自由定位、顶部居中、任务栏和悬停决策测试。
-- `npm run test:native`：100%及125%缩放下，各18项真实Electron窗口集成检查。
-- `npm run package`：构建 `release-smooth/Payday-win32-x64/Payday.exe`。
+- `npm test`：22项核心计算、备份、自由定位、顶部居中、任务栏和悬停决策测试。
+- `npm run test:native`：100%及125%缩放下，各23项真实Electron窗口集成检查。
+- `npm run package`：构建 `release-stable/Payday-win32-x64/Payday.exe`。
 
-窗口集成测试注入光标坐标并检查真实窗口边界，不是人工操作物理鼠标。测试使用独立临时目录和合成数据，不修改用户个人设置。参见 `SMOOTH-VALIDATION.md`。
+窗口集成测试注入光标坐标并检查真实窗口边界，不是人工操作物理鼠标。测试使用独立的 `.test-output/` 目录和合成数据，不修改用户个人设置。参见 `STABLE-VALIDATION.md`。
