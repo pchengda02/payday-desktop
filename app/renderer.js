@@ -1,5 +1,4 @@
 import {compute,monthEstimate,paydayDays,duration,dayKey} from './core.js';
-import {updateMotion,updateFrame} from './motion.js';
 const $=id=>document.getElementById(id),api=window.payday,form=$('form');let model,lastConfig='',lastPage=0,toastTimer;
 const money=n=>'¥'+Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}),text=(id,value)=>{$(id).textContent=value;};
 function toast(msg){text('toast',msg);$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4000);}
@@ -17,7 +16,7 @@ function apply(data){
   $('auto-hide').checked=prefs.autoHide;
   $('position-top').setAttribute('aria-pressed',String(prefs.anchor==='top'));$('position-free').setAttribute('aria-pressed',String(prefs.anchor==='free'));
   if(JSON.stringify(state.config)!==lastConfig){fillForm();lastConfig=JSON.stringify(state.config);}
-  renderRecords();render();updateMotion(data.motion,data.frame);
+  renderRecords();render();
 }
 function render(){if(!model)return;const {state}=model,c=state.config,now=new Date(),s=compute(c,now),hide=state.hiddenMoney;
   text('date',now.toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'short'}));text('status',{working:'正在积累',lunch:'休息时间',after:'已经下班',rest:'今日休息',before:'还未上班'}[s.mode]);
@@ -49,21 +48,7 @@ $('edge-tab').onclick=()=>action('position','top');
 $('add-settings').onclick=()=>$('settings').click();
 $('quick-income').onclick=()=>action('page',1);$('quick-rate').onclick=()=>action('page',1);$('quick-payday-button').onclick=()=>action('page',1);$('quick-break').onclick=()=>action('break');
 
-// Pointer capture keeps dragging continuous without moving the native canvas.
-let dragPointer=null,dragTick=0;
-const dragHeader=document.querySelector('header');
-dragHeader.addEventListener('pointerdown',e=>{
- if(e.button!==0||e.target.closest('button,input,a,nav,.tools'))return;
- dragPointer=e.pointerId;dragHeader.setPointerCapture(e.pointerId);api.action('drag-start').catch(()=>{});e.preventDefault();
-});
-dragHeader.addEventListener('pointermove',e=>{
- if(e.pointerId!==dragPointer||dragTick)return;
- dragTick=requestAnimationFrame(()=>{dragTick=0;api.action('drag-move').catch(()=>{});});
-});
-function endDrag(e){
- if(e.pointerId!==dragPointer)return;
- dragPointer=null;if(dragTick){cancelAnimationFrame(dragTick);dragTick=0;}
- api.action('drag-move').then(()=>api.action('drag-end')).catch(()=>{});
-}
-dragHeader.addEventListener('pointerup',endDrag);dragHeader.addEventListener('pointercancel',endDrag);dragHeader.addEventListener('lostpointercapture',endDrag);
-api.onFrame(updateFrame);
+
+const reducedMotionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+const syncMotionPreference=()=>api.action('motion-preference',reducedMotionQuery.matches).catch(()=>{});
+syncMotionPreference();reducedMotionQuery.addEventListener('change',syncMotionPreference);

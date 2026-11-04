@@ -13,16 +13,6 @@ body.collapsed #edge-tab{gap:10px;padding:0 13px;border-radius:0 0 18px 18px;bor
 .tile-art{width:26px;height:27px;flex:none;display:grid;place-items:center}
 .tile-art svg{width:27px;height:27px;stroke:none;fill:none;stroke-linecap:round;stroke-linejoin:round}
 
-/* Freeze content layout while the compositor moves the two surfaces. */
-#motion-shell{display:none}
-body.window-motion{pointer-events:none}
-body.window-motion #motion-shell{display:block;position:absolute;left:0;top:0;background:var(--shell);border:1px solid var(--line);transform-origin:0 0}
-body.window-motion #widget{display:flex;position:absolute;left:0;top:0;background:transparent;transform-origin:0 0;will-change:transform,opacity;pointer-events:none}
-body.window-motion #edge-tab{display:flex;position:absolute;left:0;top:0;min-height:0;gap:10px;padding:0 13px;border:0;border-radius:0 0 18px 18px;align-items:center;justify-content:center;white-space:nowrap;background:transparent;transform-origin:0 0;will-change:transform,opacity;pointer-events:none}
-
-
-/* A fixed native canvas and an OS input region avoid resize/commit flashes. */
-#widget,#edge-tab{position:absolute;left:0;top:0;transform-origin:0 0}
-header{-webkit-app-region:no-drag;touch-action:none;cursor:grab}
-header:active{cursor:grabbing}
-body.window-motion #motion-shell{border-top-color:transparent}
+/* Each view owns only its actual small native window. */
+header{-webkit-app-region:drag;cursor:grab}
+header button,header nav,header .tools{-webkit-app-region:no-drag}

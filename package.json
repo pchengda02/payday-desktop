@@ -1,7 +1,7 @@
 {
   "name": "payday-desktop",
   "productName": "Payday",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "下班倒计时桌面悬浮窗",
   "author": "Payday",
   "private": true,
