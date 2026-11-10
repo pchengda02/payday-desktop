@@ -1,5 +1,5 @@
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const COMPACT={width:560,height:180},SETTINGS={width:368,height:560},TAB={width:320,height:48};
+const COMPACT={width:496,height:160},SETTINGS={width:368,height:560},TAB={width:216,height:26};
 function validPosition(position){return !!position&&Number.isFinite(position.x)&&Number.isFinite(position.y);}
 function layout(area,{settings=false,position=null,screen=area}={}){
  const size=settings?SETTINGS:COMPACT,width=Math.min(size.width,area.width-16),height=Math.min(size.height,area.height-16);

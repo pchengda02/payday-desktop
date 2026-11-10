@@ -68,6 +68,7 @@ async function action(name,value){
  if(name==='position'){if(!['top','free'].includes(value))throw Error('无效位置');reveal(true,value==='top'?'top':'restore');return snapshot();}
  if(name==='float'){reveal(true,'restore');return {message:'拖动顶部可自由放置，移开后收至顶部中间。'};}
  if(name==='break')return transact(()=>{const now=Date.now();if(state.activeBreak===null)state.activeBreak=now;else{if(now<state.activeBreak)throw Error('请校准系统时间');state.breaks=[...state.breaks,{start:state.activeBreak,end:now}].slice(-1000);state.activeBreak=null;}});
+ if(name==='delete-break')return transact(()=>{const idx=Number(value?.index),b=state.breaks[idx];if(!b||b.start!==value?.start||b.end!==value?.end)throw Error('记录已变化，请重试');state.breaks=state.breaks.filter((_,i)=>i!==idx);});
  if(name==='export'||name==='import'){
   busy=true;try{
    if(name==='export'){const r=await dialog.showSaveDialog(panel,{title:'导出备份',defaultPath:`payday-${core.dayKey(new Date())}.json`,filters:[{name:'JSON',extensions:['json']}]});if(!r.canceled)fs.writeFileSync(r.filePath,JSON.stringify(state,null,2));return {message:r.canceled?'已取消':'备份已保存'};}
@@ -96,7 +97,7 @@ async function nativeTest(reportPath){
   const py=process.argv.find(x=>x.startsWith('--hit-probe='));
   const hit=(p=physical)=>JSON.parse(require('node:child_process').execFileSync('python',[py?py.slice(12):path.join(__dirname,'tests/hit-test.py'),String(p.x),String(p.y),handle(probe)],{windowsHide:true,encoding:'utf8'}));
   const outsideReachesProbe=()=>{const result=hit();hitDiagnostics.push({result,expected:handle(probe),probeBounds:probe.getBounds(),physical,focus:probe.isFocused()});return result.root===handle(probe);};
-  record('main and bar are genuinely small native windows',panel.getBounds().width===560&&panel.getBounds().height===180&&bar.getBounds().width===320&&bar.getBounds().height===48);
+  record('main and bar are genuinely small native windows',panel.getBounds().width===496&&panel.getBounds().height===160&&bar.getBounds().width===216&&bar.getBounds().height===26);
   record('expanded app leaves another window accessible',outsideReachesProbe());
   record('startup and hover do not steal focus',probe.isFocused());await capture(panel,'home');
   const saved={x:Math.round(area.x+(area.width-560)*.35),y:Math.round(area.y+(area.height-180)*.4)},oldSpot=screen.dipToScreenPoint({x:Math.round(area.x+(area.width-560)*.35)+500,y:Math.round(area.y+(area.height-180)*.4)+140}),baseline=hit(oldSpot);place(panel,{...geometry().panel,...saved});rememberUserPosition(panel.getBounds());
@@ -126,7 +127,7 @@ async function nativeTest(reportPath){
   record('repeated fades leave one visible window and zero stale animations',!bar.isVisible()&&panel.isVisible()&&await panel.webContents.executeJavaScript(`document.getAnimations().every(a=>a.effect?.target?.classList.contains('hero-face'))`));
   collapse(true);await sleep(30);reveal(false,'hover');collapse(true);await settle();record('rapid last request settles collapsed',collapsed&&!panel.isVisible()&&bar.isVisible());
   state.hiddenMoney=true;broadcast();await sleep(50);record('bar respects hidden income',await bar.webContents.executeJavaScript(`document.getElementById('collapsed-money').textContent==='¥••••'`));
-  const font=await bar.webContents.executeJavaScript(`parseFloat(getComputedStyle(document.getElementById('collapsed-time')).fontSize)`);record('larger 14px numbers retained',font===14);
+  const font=await bar.webContents.executeJavaScript(`parseFloat(getComputedStyle(document.getElementById('collapsed-time')).fontSize)`);record('compact 12px numbers retained',font===12);
   reveal(false,'top');await settle();await action('motion-preference',true);collapse(true);await sleep(60);record('reduced motion settles promptly',!motion&&collapsed);await action('motion-preference',false);
   record('final focus still belongs to independent window',probe.isFocused());record('final independent hit test remains correct',outsideReachesProbe());
   fs.writeFileSync(reportPath,JSON.stringify({ok:true,checks,samples,scaleFactor:d.scaleFactor,hit:hit(),hitDiagnostics},null,2));
